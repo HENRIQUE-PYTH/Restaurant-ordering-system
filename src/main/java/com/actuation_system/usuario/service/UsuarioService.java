@@ -5,6 +5,8 @@ import com.actuation_system.exceptions.NotFoundException;
 import com.actuation_system.usuario.PerfilUsuario;
 import com.actuation_system.usuario.entity.Usuario;
 import com.actuation_system.usuario.repository.UsuarioRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +28,7 @@ public class UsuarioService {
 
 //    @PreAuthorize("hasRole('DONO') or #id == authentication.principal.id") à ser usado no futuro
     @PreAuthorize("hasRole('DONO')")
-    public Usuario findByUsers (Long id){
+    public Usuario findByUser (Long id){
         return repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Usuario não encontrado"));
     }
@@ -54,10 +56,10 @@ public class UsuarioService {
     }
 
     @PreAuthorize("hasRole('DONO')")
-    public void deleteUser (Long id){
+    public ResponseEntity<Void> deleteUser (Long id){
         Usuario user = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
-        repository.delete(user);
+        return ResponseEntity.noContent().build();
     }
 
 

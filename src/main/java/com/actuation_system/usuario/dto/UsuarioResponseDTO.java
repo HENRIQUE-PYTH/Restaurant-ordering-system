@@ -1,17 +1,9 @@
 package com.actuation_system.usuario.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+public record UsuarioResponseDTO(
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-public class UsuarioResponseDTO {
+         Long id,
+         String nome,
+         String email
 
-    private Long id;
-    private String nome;
-    private String email;
-}
+) {}

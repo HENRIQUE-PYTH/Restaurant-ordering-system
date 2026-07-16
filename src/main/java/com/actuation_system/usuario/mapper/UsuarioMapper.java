@@ -3,24 +3,12 @@ package com.actuation_system.usuario.mapper;
 import com.actuation_system.usuario.dto.UsuarioRequestDTO;
 import com.actuation_system.usuario.dto.UsuarioResponseDTO;
 import com.actuation_system.usuario.entity.Usuario;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
 
-@Component
-public class UsuarioMapper {
+@Mapper (componentModel = "spring")
+public interface UsuarioMapper {
 
-    public Usuario toEntity (UsuarioRequestDTO dto){
-        Usuario user = new Usuario();
-        user.setNome(dto.getNome());
-        user.setEmail(dto.getEmail());
-        user.setSenha(dto.getSenha());
-        return user;
-    }
+    Usuario toEntity (UsuarioRequestDTO dto);
 
-    public UsuarioResponseDTO toResponse (Usuario user){
-        UsuarioResponseDTO dto = new UsuarioResponseDTO();
-        dto.setId(user.getId());
-        dto.setNome(user.getNome());
-        dto.setEmail(user.getEmail());
-        return dto;
-    }
+    UsuarioResponseDTO toResponse (Usuario usuario);
 }

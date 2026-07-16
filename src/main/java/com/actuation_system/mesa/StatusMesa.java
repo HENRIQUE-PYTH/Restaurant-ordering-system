@@ -1,8 +1,7 @@
 package com.actuation_system.mesa;
 
 public enum StatusMesa {
-    LIVRE,
+    DISPONIVEL,
     OCUPADA,
-    FECHANDO,
-    INTERDITADA
+    FECHANDO
 }

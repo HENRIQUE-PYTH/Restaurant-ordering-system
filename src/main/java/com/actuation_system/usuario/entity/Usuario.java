@@ -22,13 +22,13 @@ public class Usuario {
     @GeneratedValue
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String nome;
 
     @Column(unique=true)
     private String email;
 
-    @Column
+    @Column(nullable = false)
     private String senha;
 
     @OneToMany(mappedBy = "garcom")

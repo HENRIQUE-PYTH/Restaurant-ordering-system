@@ -1,25 +1,23 @@
 package com.actuation_system.usuario.service;
 
 import com.actuation_system.exceptions.BadRequestException;
+import com.actuation_system.exceptions.ConflictRequestException;
 import com.actuation_system.exceptions.NotFoundException;
 import com.actuation_system.usuario.PerfilUsuario;
 import com.actuation_system.usuario.entity.Usuario;
 import com.actuation_system.usuario.repository.UsuarioRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UsuarioService {
 
     private final UsuarioRepository repository;
-
-    public UsuarioService(UsuarioRepository repository) {
-        this.repository = repository;
-    }
 
     @PreAuthorize("hasRole('DONO')")
     public List<Usuario> getAllUsers (){
@@ -36,13 +34,19 @@ public class UsuarioService {
     @PreAuthorize("hasRole('DONO')")
     public Usuario createUser (Usuario user){
 
+
         if (repository.existsByEmail(user.getEmail())){
-            throw new BadRequestException("E-mail já cadastrado");
+            throw new ConflictRequestException("E-mail já cadastrado");
         }
 
         user.setPerfil(PerfilUsuario.GARCOM);
 
-        return repository.save(user);
+        try {
+            return repository.save(user);
+        }
+        catch (DataIntegrityViolationException e){
+            throw new ConflictRequestException("E-mail já cadastrado");
+        }
     }
 
     //    @PreAuthorize("hasRole('DONO') or #id == authentication.principal.id") à ser usado no futuro
@@ -50,16 +54,28 @@ public class UsuarioService {
     public Usuario updateUser (Long id, Usuario user){
         Usuario usuario = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
+
+        if (repository.existsByEmailAndIdNot(user.getEmail(), id)){
+            throw new ConflictRequestException("E-mail já cadastrado");
+        }
+
         usuario.setNome(user.getNome());
         usuario.setEmail(user.getEmail());
-        return repository.save(usuario);
+
+        try {
+            return repository.save(usuario);
+        }
+        catch (DataIntegrityViolationException e){
+            throw new ConflictRequestException("Dados conflitantes ", e);
+        }
     }
 
     @PreAuthorize("hasRole('DONO')")
-    public ResponseEntity<Void> deleteUser (Long id){
+    public void deleteUser (Long id){
         Usuario user = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
-        return ResponseEntity.noContent().build();
+        repository.delete(user);
+
     }
 
 

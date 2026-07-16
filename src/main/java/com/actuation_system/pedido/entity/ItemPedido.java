@@ -1,12 +1,11 @@
 package com.actuation_system.pedido.entity;
 
-import com.actuation_system.pedido.StatusPedido;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.time.LocalDateTime;
+
 import java.util.Objects;
 
 @NoArgsConstructor
@@ -14,21 +13,24 @@ import java.util.Objects;
 @Getter
 @Setter
 @Entity
-@Table(name = "pedido")
-public class Pedido {
+@Table(name = "item_pedido")
+public class ItemPedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private Integer comanda;
+    private String produto;
 
-    @Column()
-    private LocalDateTime horario;
+    @Column(nullable = false)
+    private String quantidade;
 
-    @Enumerated(EnumType.STRING)
-    private StatusPedido statusPedido;
+    @Column(nullable = false)
+    private Double precoUnitario;
+
+    @Column(length = 250)
+    private String observacao;
 
     @Override
     public boolean equals(Object o) {
@@ -40,4 +42,5 @@ public class Pedido {
     public int hashCode() {
         return Objects.hashCode(getId());
     }
+
 }

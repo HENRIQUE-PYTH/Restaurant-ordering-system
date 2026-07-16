@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Objects;
 
 @NoArgsConstructor
 @Getter
@@ -22,9 +23,9 @@ public class Mesa {
     private Long id;
 
     @Column(unique=true)
-    private Integer numero;
+    private Integer numeroMesa;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private StatusMesa status;
 
     @Column(unique=true)
@@ -35,4 +36,15 @@ public class Mesa {
 
     @OneToMany(mappedBy="mesa")
     private List<Atendimento> atendimentos;
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Mesa mesa)) return false;
+        return Objects.equals(getId(), mesa.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getId());
+    }
 }

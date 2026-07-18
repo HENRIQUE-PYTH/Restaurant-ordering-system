@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(BadRequestException.class)
+    @ExceptionHandler(NoContentException.class)
     public ResponseEntity<ErrorResponse> NoContentHandle(NoContentException ex){
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(new ErrorResponse(ex.getMessage(), 204));

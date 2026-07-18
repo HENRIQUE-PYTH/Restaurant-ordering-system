@@ -15,11 +15,11 @@ import java.util.Objects;
 @Getter
 @Setter
 @Entity
-@Table(name = "garcons")
+@Table(name = "usuarios")
 public class Usuario {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -31,10 +31,10 @@ public class Usuario {
     @Column(nullable = false)
     private String senha;
 
-    @OneToMany(mappedBy = "garcom")
+    @OneToMany(mappedBy = "usuario")
     private List<Comanda> comandas;
 
-    @OneToMany(mappedBy = "garcom")
+    @OneToMany(mappedBy = "usuario")
     private List<Atendimento> atendimentos;
 
     @Enumerated(EnumType.STRING)

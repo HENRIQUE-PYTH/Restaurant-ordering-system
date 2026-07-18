@@ -7,6 +7,6 @@ public record MesaResponseDTO(
         Long id,
         Integer numeroMesa,
         StatusMesa status,
-        String qrCode
+        String qrCodeToken
 
 ) {}

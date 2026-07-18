@@ -19,7 +19,7 @@ import java.util.Objects;
 public class Atendimento {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -27,7 +27,7 @@ public class Atendimento {
     private Mesa mesa;
 
     @ManyToOne
-    @JoinColumn(name = "garcom_id")
+    @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
     @Column

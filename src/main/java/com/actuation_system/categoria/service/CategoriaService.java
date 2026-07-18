@@ -28,15 +28,19 @@ public class CategoriaService {
     }
 
     @PreAuthorize("hasRole('DONO')")
-    public Categoria createCategory (Categoria categoria){
-
-        if (repository.existsByNomeIgnoreCase(categoria.getNome())){
+    public Categoria createCategory(Categoria categoria) {
+        if (repository.existsByNomeIgnoreCase(categoria.getNome())) {
             throw new BadRequestException("That category already exist.");
         }
+
+        String nomeFormatado = formatarNome(categoria.getNome());
+
+        Categoria newCategory = new Categoria();
+        newCategory.setNome(nomeFormatado);
+
         try {
-            return repository.save(categoria);
-        }
-        catch (DataIntegrityViolationException e){
+            return repository.save(newCategory);
+        } catch (DataIntegrityViolationException e) {
             throw new ConflictRequestException("Dados Conflitantes ", e);
         }
     }
@@ -45,7 +49,10 @@ public class CategoriaService {
     public Categoria updateCategory (Long id, Categoria categoria){
         Categoria find = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Category not found."));
-        find.setNome(categoria.getNome());
+
+        String nomeFormatado = formatarNome(categoria.getNome());
+
+        find.setNome(nomeFormatado);
 
         return repository.save(find);
     }
@@ -55,5 +62,14 @@ public class CategoriaService {
         Categoria categoria = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         repository.delete(categoria);
+    }
+
+
+
+
+
+    private String formatarNome(String nome) {
+        String limpo = nome.trim().toLowerCase();
+        return limpo.substring(0, 1).toUpperCase() + limpo.substring(1);
     }
 }

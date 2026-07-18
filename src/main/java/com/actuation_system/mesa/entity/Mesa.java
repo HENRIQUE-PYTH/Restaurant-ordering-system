@@ -4,6 +4,7 @@ import com.actuation_system.atendimento.entity.Atendimento;
 import com.actuation_system.comanda.entity.Comanda;
 import com.actuation_system.mesa.StatusMesa;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,12 +15,13 @@ import java.util.Objects;
 @NoArgsConstructor
 @Getter
 @Setter
+@Data
 @Entity
 @Table(name = "mesas")
 public class Mesa {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique=true)
@@ -29,7 +31,7 @@ public class Mesa {
     private StatusMesa status;
 
     @Column(unique=true)
-    private String qrCode;
+    private String qrCodeToken;
 
     @OneToMany(mappedBy="mesa")
     private List<Comanda> comandas;

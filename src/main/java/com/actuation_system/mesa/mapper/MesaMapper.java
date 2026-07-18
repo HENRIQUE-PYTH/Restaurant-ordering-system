@@ -11,4 +11,5 @@ public interface MesaMapper {
     Mesa toEntity(MesaRequestDTO dto);
 
     MesaResponseDTO toResponse (Mesa mesa);
+
 }

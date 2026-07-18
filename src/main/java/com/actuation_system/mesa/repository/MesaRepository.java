@@ -12,6 +12,6 @@ import java.util.Optional;
 @Repository
 public interface MesaRepository extends JpaRepository<Mesa, Long> {
     List<Mesa> findByStatus (StatusMesa statusMesa);
-    List<Mesa> findTableWithActiveOrder (Long id, StatusComanda statusComanda);
-    Optional<Mesa> findByIdAndComandasStatus(Long id, StatusComanda status);
+    Optional<Mesa> findByIdAndComandasStatus(Long mesaId, StatusComanda statusComanda);
+    Optional<Mesa> findByQrCodeToken(String qrCodeToken);
 }

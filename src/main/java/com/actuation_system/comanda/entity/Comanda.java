@@ -21,7 +21,7 @@ import java.util.Objects;
 public class Comanda {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -29,8 +29,8 @@ public class Comanda {
     private Mesa mesa;
 
     @ManyToOne
-    @JoinColumn(name = "garcom_id")
-    private Usuario garcom;
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
 
     @Enumerated(EnumType.STRING)
     private StatusComanda status;

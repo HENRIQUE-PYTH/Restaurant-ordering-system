@@ -9,6 +9,7 @@ import com.actuation_system.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.List;
 public class UsuarioService {
 
     private final UsuarioRepository repository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @PreAuthorize("hasRole('DONO')")
     public List<Usuario> getAllUsers (){
@@ -32,17 +34,22 @@ public class UsuarioService {
     }
 
     @PreAuthorize("hasRole('DONO')")
-    public Usuario createUser (Usuario user){
+    public Usuario createUser (Usuario dadosUsuario){
 
 
-        if (repository.existsByEmail(user.getEmail())){
+        if (repository.existsByEmail(dadosUsuario.getEmail())){
             throw new ConflictRequestException("E-mail já cadastrado");
         }
 
-        user.setPerfil(PerfilUsuario.GARCOM);
+        Usuario usuario = new Usuario();
+        usuario.setPerfil(PerfilUsuario.GARCOM);
+
+        usuario.setNome(dadosUsuario.getNome());
+        usuario.setEmail(dadosUsuario.getEmail());
+        usuario.setSenha(passwordEncoder.encode(dadosUsuario.getSenha()));
 
         try {
-            return repository.save(user);
+            return repository.save(usuario);
         }
         catch (DataIntegrityViolationException e){
             throw new ConflictRequestException("E-mail já cadastrado");
@@ -52,6 +59,7 @@ public class UsuarioService {
     //    @PreAuthorize("hasRole('DONO') or #id == authentication.principal.id") à ser usado no futuro
     @PreAuthorize("hasRole('DONO')")
     public Usuario updateUser (Long id, Usuario user){
+
         Usuario usuario = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -61,6 +69,10 @@ public class UsuarioService {
 
         usuario.setNome(user.getNome());
         usuario.setEmail(user.getEmail());
+
+        if (user.getSenha() != null && !user.getSenha().isBlank()) {
+            usuario.setSenha(passwordEncoder.encode(user.getSenha()));
+        }
 
         try {
             return repository.save(usuario);

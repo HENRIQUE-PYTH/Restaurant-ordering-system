@@ -44,7 +44,7 @@ public class CategoriaController {
                 .toList();
     }
 
-    @GetMapping("/categoryId")
+    @GetMapping("/{categoryId}")
     @Operation(
             summary = "Return one category by ID.",
             description = "Searche for category by their specific ID."
@@ -85,7 +85,7 @@ public class CategoriaController {
         return mapper.toResponse(create);
     }
 
-    @PutMapping("/update/categoryId")
+    @PutMapping("/{categoryId}/update")
     @Operation(
             summary = "Update one category by specific ID.",
             description = "A specific category can be modified by its ID."
@@ -96,15 +96,15 @@ public class CategoriaController {
             @ApiResponse(responseCode = "400", description = "Inválid data for update a category.",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public CategoriaResponseDTO updateCategory (@PathVariable Long id,
+    public CategoriaResponseDTO updateCategory (@PathVariable Long categoryId,
                                                 @RequestBody @Valid CategoriaRequestDTO dto){
         Categoria categoria = mapper.toEntity(dto);
-        Categoria update = service.updateCategory(id, categoria);
+        Categoria update = service.updateCategory(categoryId, categoria);
         return mapper.toResponse(update);
 
     }
 
-    @DeleteMapping("/delete/categoryId")
+    @DeleteMapping("/{categoryId}/delete")
     @Operation(
             summary = "delete the category by ID.",
             description = "delete the existing category by ID."
@@ -119,8 +119,8 @@ public class CategoriaController {
             description = "Category not found for the ID.",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
     )
-    public ResponseEntity<Void> deleteCategory (@PathVariable Long id){
-        service.deleteCategory(id);
+    public ResponseEntity<Void> deleteCategory (@PathVariable Long categoryId){
+        service.deleteCategory(categoryId);
         return ResponseEntity.noContent().build();
     }
 

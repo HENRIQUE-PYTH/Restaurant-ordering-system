@@ -14,6 +14,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,11 +42,12 @@ public class UsuarioController {
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
             array = @ArraySchema(schema = @Schema(implementation = UsuarioResponseDTO.class)))
     )
-    public List<UsuarioResponseDTO> AllUsers (){
-        return service.getAllUsers()
-                .stream()
-                .map(mapper::toResponse)
-                .toList();
+    public ResponseEntity<Page<UsuarioResponseDTO>> getAllUsers(
+            @PageableDefault(size = 20, sort = "name")Pageable pageable){
+        Page<Usuario> usuarios = service.getAllUsers(pageable);
+        Page<UsuarioResponseDTO> response = usuarios.map(mapper::toResponse);
+        return ResponseEntity.ok(response);
+
     }
 
     @GetMapping("/{userId}")
@@ -62,7 +66,7 @@ public class UsuarioController {
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
     )
     public UsuarioResponseDTO findByUser (@PathVariable Long userId){
-        Usuario user = service.findByUser(userId);
+        Usuario user = service.findById(userId);
         return mapper.toResponse(user);
     }
 

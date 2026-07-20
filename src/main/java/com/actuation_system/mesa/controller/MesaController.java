@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -101,12 +102,40 @@ public class MesaController {
     }
 
     @GetMapping("/has-active-order/{tableId}")
+    @Operation(
+            summary = "Verify if a table have a order active.",
+            description = "The waiter can check if a table has an active order."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The table has found.",
+            content = @Content(schema = @Schema(implementation = MesaResponseDTO.class))
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "The table is not found by can Id.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+    )
     public Optional<MesaResponseDTO> hasActiveOrder(@PathVariable Long tableId){
         return service.hasActiveOrder(tableId)
                 .map(mapper::toResponse);
     }
 
     @GetMapping("/qrcode/{token}")
+    @Operation(
+            summary = "searches for a table by its token.",
+            description = "Dedicated endpoint only for teste can be developers."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "The table has found.",
+            content = @Content(schema = @Schema(implementation = MesaResponseDTO.class))
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "The table is not found by can Id.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+    )
     public MesaResponseDTO findByQrCode(@PathVariable String token) {
 
         Mesa mesa = service.findByQrCodeToken(token);

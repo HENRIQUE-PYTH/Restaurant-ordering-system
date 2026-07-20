@@ -4,6 +4,7 @@ import com.actuation_system.atendimento.entity.Atendimento;
 import com.actuation_system.comanda.entity.Comanda;
 import com.actuation_system.usuario.PerfilUsuario;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import lombok.Setter;
 import java.util.List;
 import java.util.Objects;
 
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -30,6 +32,9 @@ public class Usuario {
 
     @Column(nullable = false)
     private String senha;
+
+    @Column(name = "ativo")
+    private boolean ativo;
 
     @OneToMany(mappedBy = "usuario")
     private List<Comanda> comandas;

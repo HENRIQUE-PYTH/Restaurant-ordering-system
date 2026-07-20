@@ -29,6 +29,7 @@ public class CategoriaService {
 
     @PreAuthorize("hasRole('DONO')")
     public Categoria createCategory(Categoria categoria) {
+
         if (repository.existsByNomeIgnoreCase(categoria.getNome())) {
             throw new BadRequestException("That category already exist.");
         }

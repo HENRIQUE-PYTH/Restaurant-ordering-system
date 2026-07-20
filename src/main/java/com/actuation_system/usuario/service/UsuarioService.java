@@ -8,6 +8,8 @@ import com.actuation_system.usuario.entity.Usuario;
 import com.actuation_system.usuario.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,15 +24,15 @@ public class UsuarioService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     @PreAuthorize("hasRole('DONO')")
-    public List<Usuario> getAllUsers (){
-        return repository.findAll();
+    public Page<Usuario> getAllUsers (Pageable pageable){
+        return repository.findAll(pageable);
     }
 
 //    @PreAuthorize("hasRole('DONO') or #id == authentication.principal.id") à ser usado no futuro
     @PreAuthorize("hasRole('DONO')")
-    public Usuario findByUser (Long id){
+    public Usuario findById (Long id){
         return repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Usuario não encontrado"));
+                .orElseThrow(() -> new NotFoundException("User not found."));
     }
 
     @PreAuthorize("hasRole('DONO')")
@@ -38,7 +40,7 @@ public class UsuarioService {
 
 
         if (repository.existsByEmail(dadosUsuario.getEmail())){
-            throw new ConflictRequestException("E-mail já cadastrado");
+            throw new ConflictRequestException("E-mail already cadaster.");
         }
 
         Usuario usuario = new Usuario();
@@ -52,7 +54,7 @@ public class UsuarioService {
             return repository.save(usuario);
         }
         catch (DataIntegrityViolationException e){
-            throw new ConflictRequestException("E-mail já cadastrado");
+            throw new ConflictRequestException("E-mail already cadaster.");
         }
     }
 
@@ -64,7 +66,7 @@ public class UsuarioService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         if (repository.existsByEmailAndIdNot(user.getEmail(), id)){
-            throw new ConflictRequestException("E-mail já cadastrado");
+            throw new ConflictRequestException("E-mail already cadaster.");
         }
 
         usuario.setNome(user.getNome());
@@ -78,7 +80,7 @@ public class UsuarioService {
             return repository.save(usuario);
         }
         catch (DataIntegrityViolationException e){
-            throw new ConflictRequestException("Dados conflitantes ", e);
+            throw new ConflictRequestException("Conflicting data ", e);
         }
     }
 
@@ -86,7 +88,8 @@ public class UsuarioService {
     public void deleteUser (Long id){
         Usuario user = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
-        repository.delete(user);
+        user.setAtivo(false);
+        repository.save(user);
 
     }
 

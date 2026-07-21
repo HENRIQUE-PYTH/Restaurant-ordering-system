@@ -24,14 +24,6 @@ public class Comanda {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "mesa_id")
-    private Mesa mesa;
-
-    @ManyToOne
-    @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
-
     @Enumerated(EnumType.STRING)
     private StatusComanda status;
 
@@ -40,6 +32,14 @@ public class Comanda {
 
     @Column
     private LocalDateTime fechamento;
+
+    @ManyToOne
+    @JoinColumn(name = "mesa_id")
+    private Mesa mesa;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
 
     @OneToMany(mappedBy = "comanda")
     private List<Pedido> pedidos;

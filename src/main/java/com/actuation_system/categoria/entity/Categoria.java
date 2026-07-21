@@ -1,10 +1,12 @@
 package com.actuation_system.categoria.entity;
 
+import com.actuation_system.produto.entity.Produto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.List;
 import java.util.Objects;
 
 @AllArgsConstructor
@@ -22,8 +24,8 @@ public class Categoria {
     @Column(nullable = false, unique = true)
     private String nome;
 
-
-//    private List<Produto> produtos;
+    @OneToMany(mappedBy = "categoria")
+    private List<Produto> produtos;
 
 
     @Override

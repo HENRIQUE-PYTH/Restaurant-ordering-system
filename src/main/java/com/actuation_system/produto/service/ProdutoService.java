@@ -15,7 +15,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RequiredArgsConstructor
 @Service
@@ -45,12 +44,13 @@ public class ProdutoService {
         Produto save = new Produto();
 
         if (produtoRepository.existsByNameAndCategoria(produto.getName(), categoria)) {
-            throw new ConflictRequestException("Já existe um produto com esse nome nessa categoria");
+            throw new ConflictRequestException("There is already a product with this name in this category.");
         }
 
         save.setName(produto.getName());
         save.setPreco(produto.getPreco());
         save.setCategoria(categoria);
+        save.setAtivo(true);
 
         try {
             return produtoRepository.save(save);

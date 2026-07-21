@@ -14,7 +14,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -136,11 +138,9 @@ public class MesaController {
             description = "The table is not found by can Id.",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
     )
-    public MesaResponseDTO findByQrCode(@PathVariable String token) {
-
+    public ResponseEntity<MesaResponseDTO> findByQrCode(@PathVariable String token) {
         Mesa mesa = service.findByQrCodeToken(token);
-
-        return mapper.toResponse(mesa);
+        return ResponseEntity.ok(mapper.toResponse(mesa));
     }
 
     @GetMapping("/{tableId}")
@@ -158,9 +158,9 @@ public class MesaController {
             responseCode = "404",
             description = "The table is not found by can Id"
     )
-    public MesaResponseDTO findById (@PathVariable Long tableId){
+    public ResponseEntity<MesaResponseDTO> findById (@PathVariable Long tableId){
         Mesa table = service.findById(tableId);
-        return mapper.toResponse(table);
+        return ResponseEntity.ok(mapper.toResponse(table));
     }
 
     @PostMapping
@@ -178,10 +178,10 @@ public class MesaController {
             description = "inválid data for creating the table.",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
     )
-    public MesaResponseDTO createTable (@RequestBody @Valid MesaRequestDTO dto){
+    public ResponseEntity<MesaResponseDTO> createTable (@RequestBody @Valid MesaRequestDTO dto){
         Mesa mesa = mapper.toEntity(dto);
         Mesa save = service.createTable(mesa);
-        return mapper.toResponse(save);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(save));
     }
 
 

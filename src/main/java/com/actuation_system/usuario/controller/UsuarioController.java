@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -65,30 +66,9 @@ public class UsuarioController {
             description = "User not found for by ID",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
     )
-    public UsuarioResponseDTO findByUser (@PathVariable Long userId){
+    public ResponseEntity<UsuarioResponseDTO> findByUser (@PathVariable Long userId){
         Usuario user = service.findById(userId);
-        return mapper.toResponse(user);
-    }
-
-    @PostMapping
-    @Operation(
-            summary = "endpoint for creation a new user",
-            description = "dedicated endpoint for registering a new waiter or owner"
-    )
-    @ApiResponse(
-            responseCode = "201",
-            description = "User creating with sucessfuly",
-            content = @Content(schema = @Schema(implementation = UsuarioResponseDTO.class))
-    )
-    @ApiResponse(
-            responseCode = "400",
-            description = "inválid data for creating the user",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
-    )
-    public UsuarioResponseDTO createUser (@RequestBody @Valid UsuarioRequestDTO dto){
-        Usuario user = mapper.toEntity(dto);
-        Usuario create = service.createUser(user);
-        return mapper.toResponse(create);
+        return ResponseEntity.ok(mapper.toResponse(user));
     }
 
     @PutMapping("/{userId}")
@@ -114,6 +94,27 @@ public class UsuarioController {
         Usuario user = mapper.toEntity(dto);
         Usuario find = service.updateUser(userId, user);
         return mapper.toResponse(find);
+    }
+
+    @PostMapping
+    @Operation(
+            summary = "endpoint for creation a new user",
+            description = "dedicated endpoint for registering a new waiter or owner"
+    )
+    @ApiResponse(
+            responseCode = "201",
+            description = "User creating with sucessfuly",
+            content = @Content(schema = @Schema(implementation = UsuarioResponseDTO.class))
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = "inválid data for creating the user",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+    )
+    public ResponseEntity<UsuarioResponseDTO> createUser (@RequestBody @Valid UsuarioRequestDTO dto){
+        Usuario user = mapper.toEntity(dto);
+        Usuario create = service.createUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(create));
     }
 
     @DeleteMapping("/{userId}")

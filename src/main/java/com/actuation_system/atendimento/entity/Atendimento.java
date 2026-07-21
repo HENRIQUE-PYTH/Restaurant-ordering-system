@@ -23,10 +23,6 @@ public class Atendimento {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "mesa_id")
-    private Mesa mesa;
-
-    @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
@@ -35,6 +31,10 @@ public class Atendimento {
 
     @Enumerated(EnumType.STRING)
     private StatusAtendimento status;
+
+    @ManyToOne
+    @JoinColumn(name = "mesa_id")
+    private Mesa mesa;
 
 
     @Override

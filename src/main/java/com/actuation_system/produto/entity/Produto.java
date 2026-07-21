@@ -1,13 +1,14 @@
 package com.actuation_system.produto.entity;
 
 import com.actuation_system.categoria.entity.Categoria;
+import com.actuation_system.pedido.entity.ItemPedido;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 
 @NoArgsConstructor
@@ -34,6 +35,9 @@ public class Produto {
     @ManyToOne
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
+
+    @OneToMany(mappedBy = "produto")
+    private List<ItemPedido> itensPedido;
 
     @Override
     public boolean equals(Object o) {

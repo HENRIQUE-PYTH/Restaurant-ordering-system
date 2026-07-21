@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,9 +60,9 @@ public class CategoriaController {
             description = "Category not found by their ID.",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
     )
-    public CategoriaResponseDTO findByCategory (@PathVariable Long categoryId){
+    public ResponseEntity<CategoriaResponseDTO> findByCategory (@PathVariable Long categoryId){
         Categoria find = service.findByCategory(categoryId);
-        return mapper.toResponse(find);
+        return ResponseEntity.ok(mapper.toResponse(find));
     }
 
     @PostMapping
@@ -79,10 +80,10 @@ public class CategoriaController {
             description = "Inválid data for the create has been new category",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
     )
-    public CategoriaResponseDTO createCategories (@RequestBody @Valid CategoriaRequestDTO dto){
+    public ResponseEntity<CategoriaResponseDTO> createCategories (@RequestBody @Valid CategoriaRequestDTO dto){
         Categoria categoria = mapper.toEntity(dto);
         Categoria create = service.createCategory(categoria);
-        return mapper.toResponse(create);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(create));
     }
 
     @PutMapping("/{categoryId}/update")
@@ -96,11 +97,11 @@ public class CategoriaController {
             @ApiResponse(responseCode = "400", description = "Inválid data for update a category.",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public CategoriaResponseDTO updateCategory (@PathVariable Long categoryId,
+    public ResponseEntity<CategoriaResponseDTO> updateCategory (@PathVariable Long categoryId,
                                                 @RequestBody @Valid CategoriaRequestDTO dto){
         Categoria categoria = mapper.toEntity(dto);
         Categoria update = service.updateCategory(categoryId, categoria);
-        return mapper.toResponse(update);
+        return ResponseEntity.ok(mapper.toResponse(update));
 
     }
 

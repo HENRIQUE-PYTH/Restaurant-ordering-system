@@ -38,13 +38,12 @@ public class ProdutoController {
 
     @PostMapping
     public ResponseEntity<ProdutoResponseDTO> createProduto(@RequestBody @Valid ProdutoRequestDTO dto){
-
         Produto produto = mapper.toEntity(dto);
         Produto save = service.createProduct(produto, dto.categoryId());
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(save));
     }
 
-    @PostMapping("/{produtoId}/{categoryId}/update")
+    @PutMapping("/{produtoId}/{categoryId}/update")
     public ResponseEntity<ProdutoResponseDTO> updateProduct (
             @RequestBody @Valid ProdutoRequestDTO dto,
             @PathVariable Long produtoId,

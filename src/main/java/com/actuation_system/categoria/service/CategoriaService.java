@@ -42,7 +42,7 @@ public class CategoriaService {
         try {
             return repository.save(newCategory);
         } catch (DataIntegrityViolationException e) {
-            throw new ConflictRequestException("Dados Conflitantes ", e);
+            throw new ConflictRequestException("Conflicting Data ", e);
         }
     }
 

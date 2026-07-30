@@ -5,12 +5,14 @@ import com.actuation_system.exceptions.NotFoundException;
 import com.actuation_system.pedido.StatusPedido;
 import com.actuation_system.pedido.entity.ItemPedido;
 import com.actuation_system.pedido.entity.Pedido;
+import com.actuation_system.pedido.mapper.PedidoMapper;
 import com.actuation_system.pedido.repositorio.PedidoRepository;
 import com.actuation_system.produto.entity.Produto;
 import com.actuation_system.produto.service.ProdutoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,8 @@ public class PedidoService {
 
     private final PedidoRepository pedidoRepository;
     private final ProdutoService produtoService;
+    private final PedidoMapper mapper;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public Page<Pedido> getAll (Pageable pageable){
         return pedidoRepository.findAll(pageable);
@@ -43,7 +47,7 @@ public class PedidoService {
         return pedidoRepository.save(order);
     }
 
-    public Pedido adicionarItem(Long pedidoId, ItemPedido itemPedido) {
+    public Pedido addItem(Long pedidoId, ItemPedido itemPedido) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
@@ -69,7 +73,7 @@ public class PedidoService {
         return pedidoRepository.save(pedido);
     }
 
-    public Pedido alterarQuantidadeItem(Long pedidoId, Long itemId, Integer novaQuantidade) {
+    public Pedido updateItemQuantity(Long pedidoId, Long itemId, Integer novaQuantidade) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
@@ -91,57 +95,60 @@ public class PedidoService {
         return pedidoRepository.save(pedido);
     }
 
-    @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
-    public Pedido iniciarPreparo(Long pedidoId) {
-        Pedido pedido = buscarPedido(pedidoId);
-        validarTransicao(pedido, StatusPedido.CRIADO, StatusPedido.EM_PREPARO);
-        pedido.setStatusPedido(StatusPedido.EM_PREPARO);
-        return pedidoRepository.save(pedido);
+    private Pedido transition(Long pedidoId, StatusPedido esperado, StatusPedido novo) {
+        Pedido pedido = searchOrder(pedidoId);
+        validateTransition(pedido, esperado, novo);
+        pedido.setStatusPedido(novo);
+        Pedido salvo = pedidoRepository.save(pedido);
+        notifyKitchen(salvo);
+        return salvo;
     }
 
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
-    public Pedido marcarPronto(Long pedidoId) {
-        Pedido pedido = buscarPedido(pedidoId);
-        validarTransicao(pedido, StatusPedido.EM_PREPARO, StatusPedido.PRONTO);
-        pedido.setStatusPedido(StatusPedido.PRONTO);
-        return pedidoRepository.save(pedido);
+    public Pedido startPreparation(Long pedidoId) {
+        return transition(pedidoId, StatusPedido.CRIADO, StatusPedido.EM_PREPARO);
     }
 
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
-    public Pedido marcarEntregue(Long pedidoId) {
-        Pedido pedido = buscarPedido(pedidoId);
-        validarTransicao(pedido, StatusPedido.PRONTO, StatusPedido.ENTREGUE);
-        pedido.setStatusPedido(StatusPedido.ENTREGUE);
-        return pedidoRepository.save(pedido);
+    public Pedido markAsDone(Long pedidoId) {
+        return transition(pedidoId, StatusPedido.EM_PREPARO, StatusPedido.PRONTO);
     }
 
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
-    public Pedido finalizar(Long pedidoId) {
-        Pedido pedido = buscarPedido(pedidoId);
-        validarTransicao(pedido, StatusPedido.ENTREGUE, StatusPedido.FINALIZADO);
-        pedido.setStatusPedido(StatusPedido.FINALIZADO);
-        return pedidoRepository.save(pedido);
+    public Pedido markAsDelivered(Long pedidoId) {
+        return transition(pedidoId, StatusPedido.PRONTO, StatusPedido.ENTREGUE);
     }
 
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
-    public Pedido cancelar(Long pedidoId) {
-        Pedido pedido = buscarPedido(pedidoId);
+    public Pedido finish(Long pedidoId) {
+        return transition(pedidoId, StatusPedido.ENTREGUE, StatusPedido.FINALIZADO);
+    }
+
+    @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
+    public Pedido cancel(Long pedidoId) {
+        Pedido pedido = searchOrder(pedidoId);
         if (pedido.getStatusPedido() == StatusPedido.EM_PREPARO || pedido.getStatusPedido() == StatusPedido.FINALIZADO) {
             throw new BadRequestException("It is not possible to cancel an order that is being prepared or has already been completed.");
         }
         pedido.setStatusPedido(StatusPedido.CANCELADO);
-        return pedidoRepository.save(pedido);
+        Pedido salvo = pedidoRepository.save(pedido);
+        notifyKitchen(salvo);
+        return salvo;
     }
 
-
-    private void validarTransicao(Pedido pedido, StatusPedido esperado, StatusPedido novo) {
-        if (pedido.getStatusPedido() != esperado) {
-            throw new BadRequestException("It is not possible to change from " + pedido.getStatusPedido() + " to " + novo);
-        }
+    private void notifyKitchen(Pedido pedido) {
+        messagingTemplate.convertAndSend("/topic/cozinha", mapper.toResponse(pedido));
     }
 
-    private Pedido buscarPedido(Long id) {
+    private Pedido searchOrder(Long id) {
         return pedidoRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Order not found."));
+                .orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
+    }
+
+    private void validateTransition(Pedido pedido, StatusPedido esperado, StatusPedido novo) {
+        if (pedido.getStatusPedido() != esperado) {
+            throw new BadRequestException(
+                    "Não é possível mudar de " + pedido.getStatusPedido() + " para " + novo);
+        }
     }
 }

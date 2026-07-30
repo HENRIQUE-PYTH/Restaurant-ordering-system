@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 @Service
 public class QrCodeService {
 
+
     public void gerarQrCode(String token) {
 
         try {
@@ -36,7 +37,6 @@ public class QrCodeService {
             }
 
             Path path = diretorio.resolve(token + ".png");
-
             MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
 
         } catch (Exception e) {

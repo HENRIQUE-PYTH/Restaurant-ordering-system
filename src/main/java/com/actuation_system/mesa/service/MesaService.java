@@ -49,7 +49,7 @@ public class MesaService {
     public Mesa findByQrCodeToken(String token) {
 
         return mesaRepository.findByQrCodeToken(token)
-                .orElseThrow(() -> new RuntimeException("Mesa não encontrada."));
+                .orElseThrow(() -> new RuntimeException("Table not found."));
     }
 
     @Transactional
@@ -71,8 +71,6 @@ public class MesaService {
 
         return mesa;
     }
-
-
 
 
 }

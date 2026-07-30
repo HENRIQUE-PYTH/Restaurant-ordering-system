@@ -57,7 +57,7 @@ public class PedidoController {
             @PathVariable Long itemId,
             @RequestBody @Valid AlterarQuantidadeRequestDTO dto){
 
-        Pedido pedido = pedidoService.alterarQuantidadeItem(
+        Pedido pedido = pedidoService.updateItemQuantity(
                 pedidoId,
                 itemId,
                 dto.quantidade()
@@ -66,37 +66,37 @@ public class PedidoController {
     }
 
     @PatchMapping("/pedidos{pedidoId}/iniciar-preparo")
-    public ResponseEntity<PedidoResponseDTO> iniciarPreparo (@PathVariable Long pedidoId){
-        Pedido preparo = pedidoService.iniciarPreparo(pedidoId);
+    public ResponseEntity<PedidoResponseDTO> startPreparation (@PathVariable Long pedidoId){
+        Pedido preparo = pedidoService.startPreparation(pedidoId);
         return ResponseEntity.ok(pedidoMapper.toResponse(preparo));
     }
 
     @PatchMapping("/pedidos{pedidoId}/marcar-pronto")
-    public ResponseEntity<PedidoResponseDTO> marcarPronto (@PathVariable Long pedidoId){
-        Pedido marcar = pedidoService.marcarPronto(pedidoId);
+    public ResponseEntity<PedidoResponseDTO> markAsDone (@PathVariable Long pedidoId){
+        Pedido marcar = pedidoService.markAsDone(pedidoId);
         return ResponseEntity.ok(pedidoMapper.toResponse(marcar));
     }
 
     @PatchMapping("/pedidos{pedidoId}/marcar-entregue")
-    public ResponseEntity<PedidoResponseDTO> marcarEntregue (@PathVariable Long pedidoId){
-        Pedido entregue = pedidoService.marcarEntregue(pedidoId);
+    public ResponseEntity<PedidoResponseDTO> markAsDelivered (@PathVariable Long pedidoId){
+        Pedido entregue = pedidoService.markAsDelivered(pedidoId);
         return ResponseEntity.ok(pedidoMapper.toResponse(entregue));
     }
 
     @PatchMapping("/pedidos{pedidoId}/finalizar")
-    public ResponseEntity<PedidoResponseDTO> finalizar (@PathVariable Long pedidoId){
-        Pedido finalizar = pedidoService.finalizar(pedidoId);
+    public ResponseEntity<PedidoResponseDTO> finish (@PathVariable Long pedidoId){
+        Pedido finalizar = pedidoService.finish(pedidoId);
         return ResponseEntity.ok(pedidoMapper.toResponse(finalizar));
     }
 
     @PatchMapping("/pedidos{pedidoId}/cancelar")
-    public ResponseEntity<PedidoResponseDTO> cancelar (@PathVariable Long pedidoId){
-        Pedido cancelar = pedidoService.cancelar(pedidoId);
+    public ResponseEntity<PedidoResponseDTO> cancel (@PathVariable Long pedidoId){
+        Pedido cancelar = pedidoService.cancel(pedidoId);
         return ResponseEntity.ok(pedidoMapper.toResponse(cancelar));
     }
 
     @PostMapping("/{pedidoId}/itens")
-    public ResponseEntity<PedidoResponseDTO> adicionarItem(
+    public ResponseEntity<PedidoResponseDTO> addItem(
             @PathVariable Long pedidoId,
             @Valid @RequestBody ItemPedidoRequestDTO dto) {
 
@@ -106,7 +106,7 @@ public class PedidoController {
         produtoRef.setId(dto.produtoId());
         itemPedido.setProduto(produtoRef);
 
-        Pedido pedido = pedidoService.adicionarItem(pedidoId, itemPedido);
+        Pedido pedido = pedidoService.addItem(pedidoId, itemPedido);
         return ResponseEntity.ok(pedidoMapper.toResponse(pedido));
     }
 

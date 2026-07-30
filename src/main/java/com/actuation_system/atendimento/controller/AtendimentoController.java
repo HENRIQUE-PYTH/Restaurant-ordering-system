@@ -42,4 +42,18 @@ public class AtendimentoController {
         Atendimento atendimento = service.createService(entity);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(atendimento));
     }
+
+    @PatchMapping("/{atendimentoId}/aceitar")
+    public ResponseEntity<AtendimentoResponseDTO> accept (
+            @PathVariable Long atendimentoId,
+            @PathVariable Long usuarioId){
+        Atendimento atendimento = service.accept(atendimentoId, usuarioId);
+        return ResponseEntity.ok(mapper.toResponse(atendimento));
+    }
+
+    @PatchMapping("/{atendimentoId}/finalizar")
+    public ResponseEntity<AtendimentoResponseDTO> finish (@PathVariable Long atendimentoId){
+        Atendimento atendimento = service.finish(atendimentoId);
+        return ResponseEntity.ok(mapper.toResponse(atendimento));
+    }
 }

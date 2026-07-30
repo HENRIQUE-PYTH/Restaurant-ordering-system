@@ -11,6 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AtendimentoService {
@@ -18,6 +21,21 @@ public class AtendimentoService {
     private final AtendimentoRepository atendimentoRepository;
     private final UsuarioService usuarioService;
 
+    public List<Atendimento> getAll(){
+        return atendimentoRepository.findAll();
+    }
+
+    public Atendimento findById (Long id){
+        return atendimentoRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("service not found"));
+    }
+
+    public Atendimento createService (Atendimento atendimento){
+
+        atendimento.setStatus(StatusAtendimento.AGUARDANDO);
+        atendimento.setHorario(LocalDateTime.now());
+        return atendimentoRepository.save(atendimento);
+    }
 
 
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")

@@ -78,7 +78,11 @@ public class PedidoService {
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Item not found in this order"));
 
-        if (novaQuantidade <= 0) {
+        if (novaQuantidade < 0) {
+            throw new BadRequestException("Quantity cannot be negative.");
+        }
+
+        if (novaQuantidade == 0) {
             pedido.getItens().remove(item);
         } else {
             item.setQuantidade(novaQuantidade);

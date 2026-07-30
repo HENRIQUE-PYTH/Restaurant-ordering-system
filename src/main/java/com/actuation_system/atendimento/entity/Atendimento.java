@@ -1,6 +1,7 @@
 package com.actuation_system.atendimento.entity;
 
 import com.actuation_system.atendimento.StatusAtendimento;
+import com.actuation_system.atendimento.TipoAtendimento;
 import com.actuation_system.usuario.entity.Usuario;
 import com.actuation_system.mesa.entity.Mesa;
 import jakarta.persistence.*;
@@ -23,7 +24,7 @@ public class Atendimento {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id")
+    @JoinColumn(name = "usuario_id", nullable = true)
     private Usuario usuario;
 
     @Column
@@ -32,9 +33,13 @@ public class Atendimento {
     @Enumerated(EnumType.STRING)
     private StatusAtendimento status;
 
+    @Enumerated(EnumType.STRING)
+    private TipoAtendimento tipoAtendimento;
+
     @ManyToOne
     @JoinColumn(name = "mesa_id")
     private Mesa mesa;
+
 
 
     @Override

@@ -39,7 +39,7 @@ public class UsuarioController {
     )
     @ApiResponse(
             responseCode = "200",
-            description = "general list returned",
+            description = "general pagination returned",
             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
             array = @ArraySchema(schema = @Schema(implementation = UsuarioResponseDTO.class)))
     )

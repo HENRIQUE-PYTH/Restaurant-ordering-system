@@ -51,6 +51,23 @@ public class MesaController {
     }
 
     @GetMapping(value = "/{mesaId}/qrcode", produces = MediaType.IMAGE_PNG_VALUE)
+    @Operation(
+            summary = "Generate a table QR Code",
+            description = "Generates and returns the QR Code image associated with the specified table."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "QR Code generated successfully.",
+            content = @Content(
+                    mediaType = MediaType.IMAGE_PNG_VALUE,
+                    schema = @Schema(type = "string", format = "binary")
+            )
+    )
+    @ApiResponse(
+            responseCode = "404",
+            description = "Table not found.",
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+    )
     public ResponseEntity<byte[]> getQrCodeImage(@PathVariable Long mesaId) {
         Mesa mesa = service.findById(mesaId);
         byte[] imagem = qrCodeService.gerarImagemQrCode(mesa.getQrCodeToken());

@@ -119,6 +119,7 @@ public class PedidoService {
         return salvo;
     }
 
+    @Transactional
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
     public Pedido startPreparation(Long pedidoId) {
         Pedido pedido = searchOrder(pedidoId);

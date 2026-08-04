@@ -44,7 +44,6 @@ public class AtendimentoService {
         atendimento.setMesa(mesa);
         atendimento.setStatus(StatusAtendimento.AGUARDANDO);
         atendimento.setHorario(LocalDateTime.now());
-
         Atendimento salvo = atendimentoRepository.save(atendimento);
         notifyService(salvo);
         return salvo;

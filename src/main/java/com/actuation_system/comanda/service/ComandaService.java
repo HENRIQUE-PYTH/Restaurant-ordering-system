@@ -68,7 +68,6 @@ public class ComandaService {
             throw new BadRequestException("This table already has an open tab.");
         }
         mesa.setStatus(StatusMesa.OCUPADA);
-        System.out.println(mesa.getStatus());
         comanda.setMesa(mesa);
         comanda.setUsuario(usuario);
         comanda.setStatus(StatusComanda.ABERTA);
@@ -79,6 +78,7 @@ public class ComandaService {
         return save;
     }
 
+    @Transactional
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
     public Comanda closeTab (Long comandaId) {
         Comanda comanda = findById(comandaId);
@@ -103,6 +103,7 @@ public class ComandaService {
     }
 
 
+    @Transactional
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
     public Comanda requestPayment(Long comandaId) {
         Comanda comanda = findById(comandaId);
@@ -118,6 +119,7 @@ public class ComandaService {
         return save;
     }
 
+    @Transactional
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
     public Comanda cancelOrder(Long comandaId) {
         Comanda comanda = findById(comandaId);

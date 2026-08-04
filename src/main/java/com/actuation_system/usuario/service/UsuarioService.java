@@ -48,6 +48,7 @@ public class UsuarioService {
 
         usuario.setNome(dadosUsuario.getNome());
         usuario.setEmail(dadosUsuario.getEmail());
+        usuario.setAtivo(true);
         usuario.setSenha(passwordEncoder.encode(dadosUsuario.getSenha()));
 
         try {

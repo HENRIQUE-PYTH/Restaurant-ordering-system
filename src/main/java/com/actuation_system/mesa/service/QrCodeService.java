@@ -4,45 +4,31 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import java.io.ByteArrayOutputStream;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 
 @Service
 public class QrCodeService {
 
+    @Value("${app.frontend-url:http://localhost:3000}")
+    private String frontendBaseUrl;
 
-    public void gerarQrCode(String token) {
-
+    public byte[] gerarImagemQrCode(String token) {
         try {
-
-            String url = "http://localhost:8080/api/mesas/" + token;
+            String url = frontendBaseUrl + "/mesa/" + token;
 
             QRCodeWriter qrCodeWriter = new QRCodeWriter();
+            BitMatrix bitMatrix = qrCodeWriter.encode(url, BarcodeFormat.QR_CODE, 300, 300);
 
-            BitMatrix bitMatrix = qrCodeWriter.encode(
-                    url,
-                    BarcodeFormat.QR_CODE,
-                    300,
-                    300
-            );
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
 
-            Path diretorio = Paths.get("qrcodes");
-
-            if (Files.notExists(diretorio)) {
-                Files.createDirectories(diretorio);
-            }
-
-            Path path = diretorio.resolve(token + ".png");
-            MatrixToImageWriter.writeToPath(bitMatrix, "PNG", path);
-
+            return outputStream.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("Erro ao gerar QR Code.", e);
         }
-
     }
-
 }

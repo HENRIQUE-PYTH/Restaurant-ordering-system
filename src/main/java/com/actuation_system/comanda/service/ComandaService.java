@@ -6,6 +6,7 @@ import com.actuation_system.comanda.mapper.ComandaMapper;
 import com.actuation_system.comanda.repository.ComandaRepository;
 import com.actuation_system.exceptions.BadRequestException;
 import com.actuation_system.exceptions.NotFoundException;
+import com.actuation_system.mesa.StatusMesa;
 import com.actuation_system.mesa.entity.Mesa;
 import com.actuation_system.mesa.repository.MesaRepository;
 import com.actuation_system.mesa.service.MesaService;
@@ -18,8 +19,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,16 +34,16 @@ public class ComandaService {
     private final SimpMessagingTemplate messagingTemplate;
     private final MesaRepository mesaRepository;
 
+    @Transactional
     public Page<Comanda> findAll (Pageable pageable){
         return comandaRepository.findAll(pageable);
     }
 
-    public Comanda
-    searchActiveCommandByTokenMesa(String token) {
+    public Comanda searchActiveCommandByTokenMesa(String token) {
         Mesa mesa = mesaRepository.findByQrCodeToken(token)
                 .orElseThrow(() -> new NotFoundException("Mesa não encontrada"));
 
-        return comandaRepository.findByMesaAndStatus(mesa, StatusComanda.ABERTA)
+        return comandaRepository.findByMesaAndStatusComPedidos(mesa, StatusComanda.ABERTA)
                 .orElseThrow(() -> new NotFoundException("Nenhuma comanda ativa para essa mesa"));
     }
 
@@ -50,6 +52,12 @@ public class ComandaService {
                 .orElseThrow(() -> new NotFoundException("Order not found"));
     }
 
+    public Comanda findByIdComPedidos(Long id) {
+        return comandaRepository.findByIdComPedidos(id)
+                .orElseThrow(() -> new NotFoundException("Comanda não encontrada"));
+    }
+
+    @Transactional
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
     public Comanda openTab (Comanda comanda) {
         Mesa mesa = mesaService.findById(comanda.getMesa().getId());
@@ -59,11 +67,13 @@ public class ComandaService {
         if (mesaJaTemComandaAberta) {
             throw new BadRequestException("This table already has an open tab.");
         }
-
+        mesa.setStatus(StatusMesa.OCUPADA);
+        System.out.println(mesa.getStatus());
         comanda.setMesa(mesa);
         comanda.setUsuario(usuario);
         comanda.setStatus(StatusComanda.ABERTA);
         comanda.setAbertura(LocalDateTime.now());
+        mesaRepository.save(mesa);
         Comanda save = comandaRepository.save(comanda);
         notifyTables(save);
         return save;
@@ -102,6 +112,7 @@ public class ComandaService {
         }
 
         comanda.setStatus(StatusComanda.AGUARDANDO_PAGAMENTO);
+        comanda.getMesa().setStatus(StatusMesa.FECHANDO);
         Comanda save = comandaRepository.save(comanda);
         notifyTables(save);
         return save;

@@ -10,12 +10,14 @@ import java.math.BigDecimal;
 @Mapper(componentModel = "spring", uses = {ItemPedidoMapper.class})
 public interface PedidoMapper {
 
-    Pedido toEntity (PedidoRequestDTO dto);
-
     @Mapping(target = "total", expression = "java(calcularTotal(pedido))")
     PedidoResponseDTO toResponse(Pedido pedido);
 
-
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "comanda", ignore = true)
+    @Mapping(target = "itens", ignore = true)
+    @Mapping(target = "statusPedido", ignore = true)
+    Pedido toEntity (PedidoRequestDTO dto);
 
     default BigDecimal calcularTotal(Pedido pedido) {
         return pedido.getItens().stream()

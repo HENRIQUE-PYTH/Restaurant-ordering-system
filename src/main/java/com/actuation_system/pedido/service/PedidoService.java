@@ -1,11 +1,16 @@
 package com.actuation_system.pedido.service;
 
+import com.actuation_system.comanda.StatusComanda;
+import com.actuation_system.comanda.entity.Comanda;
+import com.actuation_system.comanda.repository.ComandaRepository;
 import com.actuation_system.exceptions.BadRequestException;
 import com.actuation_system.exceptions.NotFoundException;
+import com.actuation_system.mesa.repository.MesaRepository;
 import com.actuation_system.pedido.StatusPedido;
 import com.actuation_system.pedido.entity.ItemPedido;
 import com.actuation_system.pedido.entity.Pedido;
 import com.actuation_system.pedido.mapper.PedidoMapper;
+import com.actuation_system.pedido.repositorio.ItemPedidoRepository;
 import com.actuation_system.pedido.repositorio.PedidoRepository;
 import com.actuation_system.produto.entity.Produto;
 import com.actuation_system.produto.service.ProdutoService;
@@ -15,7 +20,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -23,9 +30,12 @@ import java.util.Optional;
 public class PedidoService {
 
     private final PedidoRepository pedidoRepository;
+    private final ItemPedidoRepository itemPedidoRepository;
+    private final ComandaRepository comandaRepository;
     private final ProdutoService produtoService;
     private final PedidoMapper mapper;
     private final SimpMessagingTemplate messagingTemplate;
+    private final MesaRepository mesaRepository;
 
     public Page<Pedido> getAll (Pageable pageable){
         return pedidoRepository.findAll(pageable);
@@ -36,17 +46,21 @@ public class PedidoService {
                 .orElseThrow(() -> new NotFoundException("Order not found"));
     }
 
-    public Pedido createOrder (Pedido pedido){
+    public Pedido create(Pedido pedido) {
+        Comanda comanda = comandaRepository.findById(pedido.getComanda().getId())
+                .orElseThrow(() -> new NotFoundException("Comanda não encontrada"));
 
-        Pedido order = new Pedido();
-        order.setComanda(pedido.getComanda());
-        order.setHorario(pedido.getHorario());
-        order.setItens(pedido.getItens());
-        order.setStatusPedido(StatusPedido.CRIADO);
+        if (comanda.getStatus() != StatusComanda.ABERTA) {
+            throw new BadRequestException("Não é possível criar pedido em uma comanda que não está aberta");
+        }
 
-        return pedidoRepository.save(order);
+        pedido.setComanda(comanda);
+        pedido.setStatusPedido(StatusPedido.CRIADO);
+        pedido.setHorario(LocalDateTime.now());
+        return pedidoRepository.save(pedido);
     }
 
+    @Transactional
     public Pedido addItem(Long pedidoId, ItemPedido itemPedido) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
@@ -73,6 +87,7 @@ public class PedidoService {
         return pedidoRepository.save(pedido);
     }
 
+    @Transactional
     public Pedido updateItemQuantity(Long pedidoId, Long itemId, Integer novaQuantidade) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
@@ -88,6 +103,7 @@ public class PedidoService {
 
         if (novaQuantidade == 0) {
             pedido.getItens().remove(item);
+            itemPedidoRepository.delete(item);
         } else {
             item.setQuantidade(novaQuantidade);
         }
@@ -95,8 +111,7 @@ public class PedidoService {
         return pedidoRepository.save(pedido);
     }
 
-    private Pedido transition(Long pedidoId, StatusPedido esperado, StatusPedido novo) {
-        Pedido pedido = searchOrder(pedidoId);
+    private Pedido transition(Pedido pedido, StatusPedido esperado, StatusPedido novo) {
         validateTransition(pedido, esperado, novo);
         pedido.setStatusPedido(novo);
         Pedido salvo = pedidoRepository.save(pedido);
@@ -106,22 +121,27 @@ public class PedidoService {
 
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
     public Pedido startPreparation(Long pedidoId) {
-        return transition(pedidoId, StatusPedido.CRIADO, StatusPedido.EM_PREPARO);
+        Pedido pedido = searchOrder(pedidoId);
+        validateOrder(pedido);
+        return transition(pedido, StatusPedido.CRIADO, StatusPedido.EM_PREPARO);
     }
 
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
     public Pedido markAsDone(Long pedidoId) {
-        return transition(pedidoId, StatusPedido.EM_PREPARO, StatusPedido.PRONTO);
+        Pedido pedido = searchOrder(pedidoId);
+        return transition(pedido, StatusPedido.EM_PREPARO, StatusPedido.PRONTO);
     }
 
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
     public Pedido markAsDelivered(Long pedidoId) {
-        return transition(pedidoId, StatusPedido.PRONTO, StatusPedido.ENTREGUE);
+        Pedido pedido = searchOrder(pedidoId);
+        return transition(pedido, StatusPedido.PRONTO, StatusPedido.ENTREGUE);
     }
 
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
     public Pedido finish(Long pedidoId) {
-        return transition(pedidoId, StatusPedido.ENTREGUE, StatusPedido.FINALIZADO);
+        Pedido pedido = searchOrder(pedidoId);
+        return transition(pedido, StatusPedido.ENTREGUE, StatusPedido.FINALIZADO);
     }
 
     @PreAuthorize("hasAnyRole('GARCOM', 'DONO')")
@@ -142,13 +162,21 @@ public class PedidoService {
 
     private Pedido searchOrder(Long id) {
         return pedidoRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Pedido não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Order not found"));
     }
 
     private void validateTransition(Pedido pedido, StatusPedido esperado, StatusPedido novo) {
         if (pedido.getStatusPedido() != esperado) {
             throw new BadRequestException(
-                    "Não é possível mudar de " + pedido.getStatusPedido() + " para " + novo);
+                    "It is not possible to change from " + pedido.getStatusPedido() + " to " + novo);
+        }
+    }
+
+    private void validateOrder (Pedido pedido){
+        if (pedido.getItens() == null || pedido.getItens().isEmpty()){
+            throw new BadRequestException(
+                    "it is not possible to send an empty list to the kicthen"
+            );
         }
     }
 }

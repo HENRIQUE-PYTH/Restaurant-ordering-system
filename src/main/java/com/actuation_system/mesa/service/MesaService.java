@@ -1,6 +1,7 @@
 package com.actuation_system.mesa.service;
 
 import com.actuation_system.comanda.StatusComanda;
+import com.actuation_system.comanda.repository.ComandaRepository;
 import com.actuation_system.exceptions.NotFoundException;
 import com.actuation_system.mesa.StatusMesa;
 import com.actuation_system.mesa.entity.Mesa;
@@ -17,7 +18,7 @@ import java.util.UUID;
 public class MesaService {
 
     private final MesaRepository mesaRepository;
-    private final QrCodeService qrCodeService;
+    private final ComandaRepository comandaRepository;
 
     public List<Mesa> getAllTables(){
         return mesaRepository.findAll();
@@ -32,7 +33,7 @@ public class MesaService {
     }
 
     public List<Mesa> findClosingTables (){
-        return mesaRepository.findByStatus(StatusMesa.FECHANDO);
+        return mesaRepository.findByStatus(StatusMesa.FECHANDO); //ver com o claude sobre esse enum fechando quando voltar a estudar mais tarde
     }
 
 
@@ -41,9 +42,10 @@ public class MesaService {
                 .orElseThrow(() -> new NotFoundException("Table not found"));
     }
 
-    public Optional<Mesa> hasActiveOrder (Long id){
-        return mesaRepository.findByIdAndComandasStatus(
-                id, StatusComanda.ABERTA);
+    public boolean hasActiveOrder (Long id){
+        Mesa mesa = mesaRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Table not found"));
+        return comandaRepository.existsByMesaAndStatus(mesa, StatusComanda.ABERTA);
     }
 
     public Mesa findByQrCodeToken(String token) {
@@ -53,23 +55,10 @@ public class MesaService {
     }
 
     @Transactional
-    public Mesa createTable(Mesa table) {
-
-        Mesa mesa = new Mesa();
-        mesa.setNumeroMesa(table.getNumeroMesa());
+    public Mesa createTable(Mesa mesa) {
         mesa.setStatus(StatusMesa.DISPONIVEL);
-
-        // Salva para gerar o ID
-        mesa = mesaRepository.save(mesa);
-
-        // Gera um token único
-        String token = UUID.randomUUID().toString();
-        mesa.setQrCodeToken(token);
-
-        // Gera a imagem do QR Code
-        qrCodeService.gerarQrCode(token);
-
-        return mesa;
+        mesa.setQrCodeToken(UUID.randomUUID().toString());
+        return mesaRepository.save(mesa);
     }
 
 

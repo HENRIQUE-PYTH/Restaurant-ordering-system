@@ -44,7 +44,7 @@ public class UsuarioController {
             array = @ArraySchema(schema = @Schema(implementation = UsuarioResponseDTO.class)))
     )
     public ResponseEntity<Page<UsuarioResponseDTO>> getAllUsers(
-            @PageableDefault(size = 20, sort = "name")Pageable pageable){
+            @PageableDefault(size = 20, sort = "nome")Pageable pageable){
         Page<Usuario> usuarios = service.getAllUsers(pageable);
         Page<UsuarioResponseDTO> response = usuarios.map(mapper::toResponse);
         return ResponseEntity.ok(response);
@@ -71,30 +71,6 @@ public class UsuarioController {
         return ResponseEntity.ok(mapper.toResponse(user));
     }
 
-    @PutMapping("/{userId}")
-    @Operation(
-            summary = "endpoint for update a user",
-            description = "dedicated endpoint for updating specific dating of the user"
-    )
-    @ApiResponse(
-            responseCode = "200",
-            description = "waiter or owner updated",
-            content = @Content(schema = @Schema(implementation = UsuarioResponseDTO.class))
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "404", description = "The user not is found.",
-                content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "400", description = "The data entered is invalid, please try again with dated correct.",
-                content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "409", description = "The email address you entered already exists.",
-                content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    public UsuarioResponseDTO updateUser (@PathVariable Long userId,
-                                          @RequestBody @Valid UsuarioRequestDTO dto){
-        Usuario user = mapper.toEntity(dto);
-        Usuario find = service.updateUser(userId, user);
-        return mapper.toResponse(find);
-    }
 
     @PostMapping
     @Operation(
@@ -115,6 +91,31 @@ public class UsuarioController {
         Usuario user = mapper.toEntity(dto);
         Usuario create = service.createUser(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(create));
+    }
+
+    @PutMapping("/{userId}")
+    @Operation(
+            summary = "endpoint for update a user",
+            description = "dedicated endpoint for updating specific dating of the user"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "waiter or owner updated",
+            content = @Content(schema = @Schema(implementation = UsuarioResponseDTO.class))
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "404", description = "The user not is found.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "400", description = "The data entered is invalid, please try again with dated correct.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "The email address you entered already exists.",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    public UsuarioResponseDTO updateUser (@PathVariable Long userId,
+                                          @RequestBody @Valid UsuarioRequestDTO dto){
+        Usuario user = mapper.toEntity(dto);
+        Usuario find = service.updateUser(userId, user);
+        return mapper.toResponse(find);
     }
 
     @DeleteMapping("/{userId}")

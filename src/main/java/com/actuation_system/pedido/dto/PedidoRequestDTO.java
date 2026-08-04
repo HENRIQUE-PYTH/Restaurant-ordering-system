@@ -4,5 +4,5 @@ import jakarta.validation.constraints.NotNull;
 
 public record PedidoRequestDTO(
         @NotNull(message = "A comanda é obrigatória")
-        Integer comanda
+        Long comandaId
 ) {}

@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -41,8 +42,8 @@ public class Comanda {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
 
-    @OneToMany(mappedBy = "comanda")
-    private List<Pedido> pedidos;
+    @OneToMany(mappedBy = "comanda", fetch = FetchType.EAGER)
+    private List<Pedido> pedidos = new ArrayList<>();
 
 
     @Override

@@ -6,13 +6,13 @@ import com.actuation_system.mesa.dto.MesaResponseDTO;
 import com.actuation_system.mesa.entity.Mesa;
 import com.actuation_system.mesa.mapper.MesaMapper;
 import com.actuation_system.mesa.service.MesaService;
+import com.actuation_system.mesa.service.QrCodeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
-import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,6 +30,7 @@ public class MesaController {
 
     private final MesaService service;
     private final MesaMapper mapper;
+    private final QrCodeService qrCodeService;
 
     @GetMapping
     @Operation(
@@ -47,6 +48,13 @@ public class MesaController {
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
+    }
+
+    @GetMapping(value = "/{mesaId}/qrcode", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getQrCodeImage(@PathVariable Long mesaId) {
+        Mesa mesa = service.findById(mesaId);
+        byte[] imagem = qrCodeService.gerarImagemQrCode(mesa.getQrCodeToken());
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(imagem);
     }
 
     @GetMapping("/available")
@@ -118,9 +126,9 @@ public class MesaController {
             description = "The table is not found by can Id.",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class))
     )
-    public Optional<MesaResponseDTO> hasActiveOrder(@PathVariable Long tableId){
-        return service.hasActiveOrder(tableId)
-                .map(mapper::toResponse);
+    public ResponseEntity<Boolean> hasActiveOrder(@PathVariable Long tableId) {
+        boolean temComandaAtiva = service.hasActiveOrder(tableId);
+        return ResponseEntity.ok(temComandaAtiva);
     }
 
     @GetMapping("/qrcode/{token}")

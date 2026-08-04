@@ -1,5 +1,6 @@
 package com.actuation_system.pedido.controller;
 
+import com.actuation_system.comanda.entity.Comanda;
 import com.actuation_system.pedido.dto.AlterarQuantidadeRequestDTO;
 import com.actuation_system.pedido.dto.ItemPedidoRequestDTO;
 import com.actuation_system.pedido.dto.PedidoRequestDTO;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -45,13 +47,18 @@ public class PedidoController {
     }
 
     @PostMapping
-    public ResponseEntity<PedidoResponseDTO> createOrder (@RequestBody PedidoRequestDTO dto){
-        Pedido entity = pedidoMapper.toEntity(dto);
-        Pedido response = pedidoService.createOrder(entity);
-        return ResponseEntity.status(HttpStatus.CREATED).body(pedidoMapper.toResponse(response));
+    public ResponseEntity<PedidoResponseDTO> create(@Valid @RequestBody PedidoRequestDTO dto) {
+        Pedido pedido = pedidoMapper.toEntity(dto);
+
+        Comanda comandaRef = new Comanda();
+        comandaRef.setId(dto.comandaId());
+        pedido.setComanda(comandaRef);
+
+        Pedido salvo = pedidoService.create(pedido);
+        return ResponseEntity.status(HttpStatus.CREATED).body(pedidoMapper.toResponse(salvo));
     }
 
-    @PatchMapping("/pedidos{pedidoId}/itens/{itemId}")
+    @PatchMapping("/pedido/{pedidoId}/itens/{itemId}")
     public ResponseEntity<PedidoResponseDTO> changeQuantity(
             @PathVariable Long pedidoId,
             @PathVariable Long itemId,
@@ -65,31 +72,32 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoMapper.toResponse(pedido));
     }
 
-    @PatchMapping("/pedidos{pedidoId}/iniciar-preparo")
+    @Transactional
+    @PatchMapping("/pedido/{pedidoId}/iniciar-preparo")
     public ResponseEntity<PedidoResponseDTO> startPreparation (@PathVariable Long pedidoId){
         Pedido preparo = pedidoService.startPreparation(pedidoId);
         return ResponseEntity.ok(pedidoMapper.toResponse(preparo));
     }
 
-    @PatchMapping("/pedidos{pedidoId}/marcar-pronto")
+    @PatchMapping("/pedido/{pedidoId}/marcar-pronto")
     public ResponseEntity<PedidoResponseDTO> markAsDone (@PathVariable Long pedidoId){
         Pedido marcar = pedidoService.markAsDone(pedidoId);
         return ResponseEntity.ok(pedidoMapper.toResponse(marcar));
     }
 
-    @PatchMapping("/pedidos{pedidoId}/marcar-entregue")
+    @PatchMapping("/pedido/{pedidoId}/marcar-entregue")
     public ResponseEntity<PedidoResponseDTO> markAsDelivered (@PathVariable Long pedidoId){
         Pedido entregue = pedidoService.markAsDelivered(pedidoId);
         return ResponseEntity.ok(pedidoMapper.toResponse(entregue));
     }
 
-    @PatchMapping("/pedidos{pedidoId}/finalizar")
+    @PatchMapping("/pedido/{pedidoId}/finalizar")
     public ResponseEntity<PedidoResponseDTO> finish (@PathVariable Long pedidoId){
         Pedido finalizar = pedidoService.finish(pedidoId);
         return ResponseEntity.ok(pedidoMapper.toResponse(finalizar));
     }
 
-    @PatchMapping("/pedidos{pedidoId}/cancelar")
+    @PatchMapping("/pedido/{pedidoId}/cancelar")
     public ResponseEntity<PedidoResponseDTO> cancel (@PathVariable Long pedidoId){
         Pedido cancelar = pedidoService.cancel(pedidoId);
         return ResponseEntity.ok(pedidoMapper.toResponse(cancelar));

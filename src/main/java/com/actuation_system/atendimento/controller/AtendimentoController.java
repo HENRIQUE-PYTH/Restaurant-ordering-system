@@ -39,7 +39,7 @@ public class AtendimentoController {
     public ResponseEntity<AtendimentoResponseDTO> createService (@RequestBody AtendimentoRequestDTO dto){
 
         Atendimento entity = mapper.toEntity(dto);
-        Atendimento atendimento = service.createService(entity);
+        Atendimento atendimento = service.create(entity);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(atendimento));
     }
 

@@ -1,13 +1,13 @@
 # Restaurant Ordering System
 
-Sistema SaaS de atendimento para restaurantes e bares de grande porte, que substitui o
-atendimento em papel por um fluxo digital via **QR Code nas mesas**.
-
 ⚠️⚠️⚠️ SEGURANÇA AINDA NÃO IMPLEMENTADA ⚠️⚠️⚠️
 Alguns services já possuem @PreAuthorize("hasAnyRole('GARCOM', 'DONO')") como preparação
 para o controle de acesso, mas ainda NÃO há UserDetailsService, JWT/tokens ou 
 @EnableMethodSecurity configurados. Ou seja, os endpoints ainda não estão protegidos
 na prática — qualquer requisição passa sem autenticação real.
+
+Sistema SaaS de atendimento para restaurantes e bares de grande porte, que substitui o
+atendimento em papel por um fluxo digital via **QR Code nas mesas**.
 
 Cada mesa possui um QR Code fixo com o número da mesa. Ao escanear, o cliente tem acesso a três ações:
 

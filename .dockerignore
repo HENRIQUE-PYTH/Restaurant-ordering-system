@@ -1,0 +1,9 @@
+target/
+qrcodes/
+.git/
+.gitignore
+.gitattributes
+*.md
+.idea/
+.vscode/
+*.iml

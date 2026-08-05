@@ -158,8 +158,6 @@ docker rm restaurant-app restaurant-db
 docker network rm restaurant-net
 ```
 
-> O ponto-chave do `docker run` puro é o `--network`: sem ele os dois containers não se enxergam, e é exatamente isso que o `docker compose` cria automaticamente pra você — por isso vale aprender compose mais pra frente.
-
 ## 🔧 Variáveis de ambiente
 
 Configuradas no `docker-compose.yml`, podem ser sobrescritas conforme o ambiente:

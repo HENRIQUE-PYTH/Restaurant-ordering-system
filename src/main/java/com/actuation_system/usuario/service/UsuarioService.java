@@ -1,6 +1,5 @@
 package com.actuation_system.usuario.service;
 
-import com.actuation_system.exceptions.BadRequestException;
 import com.actuation_system.exceptions.ConflictRequestException;
 import com.actuation_system.exceptions.NotFoundException;
 import com.actuation_system.usuario.PerfilUsuario;
@@ -14,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

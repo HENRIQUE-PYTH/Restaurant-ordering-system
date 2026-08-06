@@ -5,7 +5,6 @@ import com.actuation_system.comanda.entity.Comanda;
 import com.actuation_system.comanda.repository.ComandaRepository;
 import com.actuation_system.exceptions.BadRequestException;
 import com.actuation_system.exceptions.NotFoundException;
-import com.actuation_system.mesa.repository.MesaRepository;
 import com.actuation_system.pedido.StatusPedido;
 import com.actuation_system.pedido.entity.ItemPedido;
 import com.actuation_system.pedido.entity.Pedido;
@@ -35,7 +34,6 @@ public class PedidoService {
     private final ProdutoService produtoService;
     private final PedidoMapper mapper;
     private final SimpMessagingTemplate messagingTemplate;
-    private final MesaRepository mesaRepository;
 
     public Page<Pedido> getAll (Pageable pageable){
         return pedidoRepository.findAll(pageable);

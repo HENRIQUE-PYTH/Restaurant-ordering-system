@@ -6,7 +6,6 @@ import com.actuation_system.produto.dto.ProdutoResponseDTO;
 import com.actuation_system.produto.entity.Produto;
 import com.actuation_system.produto.mapper.ProdutoMapper;
 import com.actuation_system.produto.service.ProdutoService;
-import com.actuation_system.usuario.dto.UsuarioResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;

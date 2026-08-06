@@ -47,7 +47,9 @@ public class ProdutoService {
             throw new ConflictRequestException("There is already a product with this name in this category.");
         }
 
-        save.setName(produto.getName());
+        String nomeFormatado = formatarNome(produto.getName());
+
+        save.setName(nomeFormatado);
         save.setPreco(produto.getPreco());
         save.setCategoria(categoria);
         save.setAtivo(true);
@@ -90,6 +92,11 @@ public class ProdutoService {
                         .orElseThrow(() -> new NotFoundException("Product not found by Id"));
         produto.setAtivo(false);
         produtoRepository.save(produto);
+    }
+
+    private String formatarNome(String nome) {
+        String limpo = nome.trim().toLowerCase();
+        return limpo.substring(0, 1).toUpperCase() + limpo.substring(1);
     }
 
 }

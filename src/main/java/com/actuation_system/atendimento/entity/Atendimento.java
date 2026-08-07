@@ -16,16 +16,15 @@ import java.util.Objects;
 @Getter
 @Setter
 @Entity
-@Table(name = "Atendimentos")
+@Table(name = "atendimentos")
 public class Atendimento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = true)
-    private Usuario usuario;
+    @Version
+    private Long version;
 
     @Column
     private LocalDateTime horario;
@@ -35,6 +34,10 @@ public class Atendimento {
 
     @Enumerated(EnumType.STRING)
     private TipoAtendimento tipoAtendimento;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
 
     @ManyToOne
     @JoinColumn(name = "mesa_id")

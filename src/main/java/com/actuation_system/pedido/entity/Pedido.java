@@ -17,12 +17,15 @@ import java.util.Objects;
 @Getter
 @Setter
 @Entity
-@Table(name = "pedido")
+@Table(name = "pedidos")
 public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
 
     @ManyToOne
     @JoinColumn(name = "comanda_id")

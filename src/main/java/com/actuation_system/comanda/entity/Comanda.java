@@ -18,12 +18,15 @@ import java.util.Objects;
 @Getter
 @Setter
 @Entity
-@Table(name = "tabelas")
+@Table(name = "comandas")
 public class Comanda {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
 
     @Enumerated(EnumType.STRING)
     private StatusComanda status;

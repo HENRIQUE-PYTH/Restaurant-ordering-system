@@ -33,7 +33,7 @@ public class Produto {
     private Boolean ativo;
 
     @ManyToOne
-    @JoinColumn(name = "categoria_id")
+    @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
     @OneToMany(mappedBy = "produto")

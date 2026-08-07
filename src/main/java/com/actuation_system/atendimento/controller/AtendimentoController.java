@@ -6,7 +6,9 @@ import com.actuation_system.atendimento.entity.Atendimento;
 import com.actuation_system.atendimento.mapper.AtendimentoMapper;
 import com.actuation_system.atendimento.service.AtendimentoService;
 import com.actuation_system.exceptions.ErrorResponse;
+import com.actuation_system.exceptions.TooManyRequestsException;
 import com.actuation_system.mesa.entity.Mesa;
+import com.actuation_system.shared.ratelimit.RateLimiterService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,6 +31,7 @@ public class AtendimentoController {
 
     private final AtendimentoService service;
     private final AtendimentoMapper mapper;
+    private final RateLimiterService rateLimiterService;
 
     @GetMapping
     @Operation(
@@ -94,11 +97,16 @@ public class AtendimentoController {
             )
     })
     public ResponseEntity<AtendimentoResponseDTO> createService(@Valid @RequestBody AtendimentoRequestDTO dto) {
-        Atendimento atendimento = mapper.toEntity(dto);
 
+        boolean permitido = rateLimiterService.tentarConsumir(dto.qrCodeToken());
+        if (!permitido) {
+            throw new TooManyRequestsException("Muitas solicitações. Aguarde um momento antes de tentar novamente.");
+        }
+
+        Atendimento atendimento = mapper.toEntity(dto);
         Mesa mesaRef = new Mesa();
         mesaRef.setQrCodeToken(dto.qrCodeToken());
-        atendimento.setMesa(mesaRef); // ← esse passo que provavelmente falta
+        atendimento.setMesa(mesaRef);
 
         Atendimento salvo = service.create(atendimento);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(salvo));

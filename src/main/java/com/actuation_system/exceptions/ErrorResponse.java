@@ -1,7 +1,11 @@
 package com.actuation_system.exceptions;
 
+import lombok.Getter;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 public class ErrorResponse {
     private int status;
     private String mensagem;
@@ -13,27 +17,5 @@ public class ErrorResponse {
         this.timestamp = LocalDateTime.now();
     }
 
-    public int getStatus() {
-        return status;
-    }
 
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    public String getMensagem() {
-        return mensagem;
-    }
-
-    public void setMensagem(String mensagem) {
-        this.mensagem = mensagem;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
 }

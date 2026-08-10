@@ -110,11 +110,11 @@ public class UsuarioController {
             @ApiResponse(responseCode = "409", description = "The email address you entered already exists.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public UsuarioResponseDTO updateUser (@PathVariable Long userId,
+    public ResponseEntity<UsuarioResponseDTO> updateUser (@PathVariable Long userId,
                                           @RequestBody @Valid UsuarioRequestDTO dto){
         Usuario user = mapper.toEntity(dto);
         Usuario find = service.updateUser(userId, user);
-        return mapper.toResponse(find);
+        return ResponseEntity.ok(mapper.toResponse(find));
     }
 
     @DeleteMapping("/{userId}")

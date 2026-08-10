@@ -32,7 +32,7 @@ public class MesaService {
     }
 
     public List<Mesa> findClosingTables (){
-        return mesaRepository.findByStatus(StatusMesa.FECHANDO); //ver com o claude sobre esse enum fechando quando voltar a estudar mais tarde
+        return mesaRepository.findByStatus(StatusMesa.FECHANDO);
     }
 
 
@@ -50,7 +50,7 @@ public class MesaService {
     public Mesa findByQrCodeToken(String token) {
 
         return mesaRepository.findByQrCodeToken(token)
-                .orElseThrow(() -> new RuntimeException("Table not found."));
+                .orElseThrow(() -> new NotFoundException("Table not found."));
     }
 
     @Transactional
